@@ -1,7 +1,7 @@
 transformers
 torch
+torchvision
 streamlit
 pandas
-
 vaderSentiment
 plotly
