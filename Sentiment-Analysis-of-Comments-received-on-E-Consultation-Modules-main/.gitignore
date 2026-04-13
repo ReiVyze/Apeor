@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Model files (Large)
+# Uncomment the line below if you are NOT using Git LFS
+# model/
+
+# Streamlit
+.streamlit/config.toml (uncomment if you want local settings different from cloud)
+
+# OS
+.DS_Store
+Thumbs.db

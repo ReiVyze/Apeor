@@ -1,0 +1,78 @@
+<div class="channels-overview" style="margin-bottom: 2rem;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <!-- Email Card -->
+        <div class="mc" style="border-top: 4px solid #ef4444;">
+            <div class="mc-label">📬 Support Emails</div>
+            <div class="mc-val">{{email_total}}</div>
+            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                <span class="nps-{{email_sentiment_cls}}">{{email_sentiment}}%</span> Sentiment
+            </div>
+            <div class="q-metric" style="font-size: 0.75rem; display: flex; justify-content: space-between;">
+                <span>Avg Response:</span> <b>2.4h</b>
+            </div>
+        </div>
+        <!-- Social Card -->
+        <div class="mc" style="border-top: 4px solid #3b82f6;">
+            <div class="mc-label">🐦 Social Mentions</div>
+            <div class="mc-val">{{social_total}}</div>
+            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                <span class="nps-{{social_sentiment_cls}}">{{social_sentiment}}%</span> Sentiment
+            </div>
+             <div class="q-metric" style="font-size: 0.75rem; display: flex; justify-content: space-between;">
+                <span>Reach:</span> <b>12.5k</b>
+            </div>
+        </div>
+        <!-- Reviews Card -->
+        <div class="mc" style="border-top: 4px solid #f59e0b;">
+            <div class="mc-label">⭐ Product Reviews</div>
+            <div class="mc-val">{{review_total}}</div>
+            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                CSAT Score: <b style="color: #f59e0b;">{{csat_score}}/5</b>
+            </div>
+            <div class="q-metric" style="font-size: 0.75rem; display: flex; justify-content: space-between;">
+                <span>Rating:</span> <b>4.2/5.0</b>
+            </div>
+        </div>
+        <!-- Survey Card -->
+        <div class="mc" style="border-top: 4px solid #22c55e;">
+            <div class="mc-label">📋 NPS Surveys</div>
+            <div class="mc-val">{{survey_total}}</div>
+            <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.5rem;">
+                Current NPS: <span class="nps-{{nps_cls}}"><b>{{nps_score}}</b></span>
+            </div>
+            <div class="q-metric" style="font-size: 0.75rem; display: flex; justify-content: space-between;">
+                <span>Participation:</span> <b>68%</b>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="insights-section" style="background: white; border: 1px solid #e4e8ef; border-radius: 12px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.07);">
+    <h3 style="font-size: 1rem; font-weight: 700; color: #111827; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px;">
+        🔍 Key Actionable Insights by Channel
+    </h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: #6b7280; margin-bottom: 0.75rem; text-transform: uppercase;">Top Friction Points</div>
+            <div class="insight-card" style="border-color: #ef4444;">
+                <div style="font-size: 0.85rem; font-weight: 600;">Pricing Confusion (Surveys)</div>
+                <div style="font-size: 0.75rem; color: #6b7280;">High volume of 'detractor' scores linked to Clause 2 pricing transparency.</div>
+            </div>
+            <div class="insight-card" style="border-color: #f59e0b;">
+                <div style="font-size: 0.85rem; font-weight: 600;">Portal Latency (Chat)</div>
+                <div style="font-size: 0.75rem; color: #6b7280;">Citizens reporting 5s+ load times during peak submission hours.</div>
+            </div>
+        </div>
+        <div>
+            <div style="font-size: 0.8rem; font-weight: 600; color: #6b7280; margin-bottom: 0.75rem; text-transform: uppercase;">Growth Opportunities</div>
+            <div class="insight-card" style="border-color: #22c55e;">
+                <div style="font-size: 0.85rem; font-weight: 600;">Community Support (Social)</div>
+                <div style="font-size: 0.75rem; color: #6b7280;">Strong positive sentiment around regional town-hall meetings.</div>
+            </div>
+            <div class="insight-card" style="border-color: #3b82f6;">
+                <div style="font-size: 0.85rem; font-weight: 600;">Feature Request (Email)</div>
+                <div style="font-size: 0.75rem; color: #6b7280;">34 requests for a direct mobile app for feedback submission.</div>
+            </div>
+        </div>
+    </div>
+</div>
