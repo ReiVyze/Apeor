@@ -64,10 +64,9 @@ st.sidebar.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
 user_role = st.sidebar.selectbox("Perspective:", ["👤 Active Citizen", "💼 Official Policymaker"], index=1)
 
-# --- NAVIGATION (directly after Perspective) ---
+# --- NAVIGATION ---
 if user_role == "👤 Active Citizen":
     nav_items = [
         {"label": "Submit Feedback", "icon": "✍️"}
