@@ -64,7 +64,7 @@ st.sidebar.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-st.sidebar.markdown("<br><br>", unsafe_allow_html=True)
+st.sidebar.markdown("<br>", unsafe_allow_html=True)
 user_role = st.sidebar.selectbox("Perspective:", ["👤 Active Citizen", "💼 Official Policymaker"], index=1)
 
 if user_role == "👤 Active Citizen":
