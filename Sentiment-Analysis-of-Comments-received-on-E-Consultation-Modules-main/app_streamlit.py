@@ -90,13 +90,11 @@ for item in nav_items:
         st.rerun()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
-# --- AI MODEL (pinned to the very bottom via CSS) ---
-st.sidebar.markdown('<div class="sidebar-bottom-section">', unsafe_allow_html=True)
+# --- AI MODEL (pinned via CSS) ---
 if user_role == "👤 Active Citizen":
     model_type = st.sidebar.selectbox("AI Model:", ["Vader (Lexicon)"])
 else:
     model_type = st.sidebar.selectbox("AI Model:", ["RoBERTa (HF)", "Local DistilBert", "Vader (Lexicon)"])
-st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
 # --- TOP SEARCH BAR ---
 col_search, col_profile = st.columns([6, 1])
