@@ -67,6 +67,9 @@ st.sidebar.markdown('''
 st.sidebar.markdown("<br>", unsafe_allow_html=True)
 user_role = st.sidebar.selectbox("Perspective:", ["👤 Active Citizen", "💼 Official Policymaker"], index=1)
 
+# --- MIDDLE NAVIGATION ---
+st.sidebar.markdown("<div style='height: 10vh;'></div>", unsafe_allow_html=True) # Spacer to push nav to middle
+
 if user_role == "👤 Active Citizen":
     nav_items = [
         {"label": "Submit Feedback", "icon": "✍️"}
@@ -90,7 +93,9 @@ for item in nav_items:
         st.rerun()
     st.sidebar.markdown('</div>', unsafe_allow_html=True)
 
-st.sidebar.markdown("<br>", unsafe_allow_html=True)
+
+# --- BOTTOM AI MODEL SECTION ---
+st.sidebar.markdown("<div style='height: 15vh;'></div>", unsafe_allow_html=True) # Spacer to push model to bottom
 
 if user_role == "👤 Active Citizen":
     model_type = st.sidebar.selectbox("AI Model:", ["Vader (Lexicon)"])

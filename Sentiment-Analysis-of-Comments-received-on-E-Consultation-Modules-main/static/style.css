@@ -74,7 +74,7 @@
     justify-content: flex-start !important;
     font-size: 0.875rem !important;
     font-weight: 400 !important;
-    padding: 0.5rem 0.9rem !important; /* Tighter vertical padding */
+    padding: 0.65rem 0.9rem !important; /* Slightly increased for better 'breathing' room */
     border-radius: 8px !important;
     width: 100% !important;
     box-shadow: none !important;
