@@ -1,11 +1,12 @@
-# model_inference.py
 import torch
+import os
 from transformers import pipeline
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 # Configuration
-MODEL_PATH_LOCAL = "model"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH_LOCAL = os.path.join(BASE_DIR, "model")
 ROBERTA_MODEL = "cardiffnlp/twitter-roberta-base-sentiment"
 
 class SentimentAnalyzer:

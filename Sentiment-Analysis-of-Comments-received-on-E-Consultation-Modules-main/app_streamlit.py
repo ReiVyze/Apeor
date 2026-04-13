@@ -5,8 +5,12 @@ from plotly.subplots import make_subplots
 from datetime import datetime
 import random
 import re
+import os
 from collections import Counter
 from model_inference import analyze_sentiment, analyze_batch, calculate_metrics, get_actionable_category
+
+# Get the directory of the current script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Processed Data State
 if 'processed_df' not in st.session_state:
@@ -39,10 +43,11 @@ COLORS = {'Positive': '#22c55e', 'Neutral': '#f59e0b', 'Negative': '#ef4444'}
 # --- PAGE CONFIG ---
 st.set_page_config(page_title="OracleE Sentiment Dashboard", page_icon="〇", layout="wide", initial_sidebar_state="expanded")
 
-# --- LOAD CSS ---
-def load_html(path):
+# --- LOAD CSS/HTML ---
+def load_html(relative_path):
+    full_path = os.path.join(BASE_DIR, relative_path)
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(full_path, "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
         return ""
