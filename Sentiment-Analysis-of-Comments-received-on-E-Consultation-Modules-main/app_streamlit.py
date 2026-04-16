@@ -265,7 +265,7 @@ if st.session_state.active_page in ["Sentiment Analysis", "Submit Feedback"]:
                 df['date_dt'] = datetime.now().date()
 
             # FILTER ROW
-            with st.container():
+            with st.expander("⚙️ Dashboard Filters", expanded=False):
                 col_d, col_c, col_t, col_s = st.columns([1.2, 1, 1, 1])
                 
                 with col_d:
