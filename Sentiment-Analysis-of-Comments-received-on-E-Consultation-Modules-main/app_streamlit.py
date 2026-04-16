@@ -8,6 +8,7 @@ import re
 import os
 from collections import Counter
 from model_inference import analyze_sentiment, analyze_batch, calculate_metrics, get_actionable_category
+from database import db_handler  # Added for MongoDB integration
 
 # Get the directory of the current script
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -126,6 +127,9 @@ if st.session_state.active_page in ["Sentiment Analysis", "Submit Feedback"]:
                              "theme": pc, "region": rg, "channel": "Direct Portal", "model": model_type
                          }
                          
+                         # Save to MongoDB
+                         db_handler.save_feedback(new_entry.copy())
+                         
                          # Save to history
                          st.session_state.history.insert(0, new_entry)
                          
@@ -200,10 +204,26 @@ if st.session_state.active_page in ["Sentiment Analysis", "Submit Feedback"]:
                             for c in df_up.columns:
                                 if c.lower() in ['date', 'channel', 'theme'] and c != txt_col:
                                     res_df[c] = df_up[c][:len(texts)].values
+                            
+                            # Save the batch to the database
+                            db_handler.save_batch_feedback(res_df.to_dict('records'))
+                            
                             st.session_state.processed_df = res_df
                             st.rerun()
                 
                 st.markdown("<br><hr style='border-color: #e4e8ef; opacity: 0.5;'>", unsafe_allow_html=True)
+                
+                if st.button("Load Data from Database", use_container_width=True):
+                    db_data = db_handler.get_all_feedback()
+                    if db_data:
+                        df_db = pd.DataFrame(db_data)
+                        if '_id' in df_db.columns:
+                            df_db['_id'] = df_db['_id'].astype(str)
+                        st.session_state.processed_df = df_db
+                        st.rerun()
+                    else:
+                        st.warning("No data found in MongoDB database.")
+
                 if st.button("Load Quick Demo Data"):
                     # Realistic demo data
                     feedback_pool = {
