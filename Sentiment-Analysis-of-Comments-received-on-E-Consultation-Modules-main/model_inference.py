@@ -136,7 +136,7 @@ class SentimentAnalyzer:
 
 
     def calculate_metrics(self, df):
-        if df.empty: return {"total": 0, "pos_pct": 0, "neg_pct": 0, "neu_pct": 0, "nps": 0, "csat": 0}
+        if df.empty: return {"total": 0, "pos_count": 0, "neg_count": 0, "neu_count": 0, "pos_pct": 0, "neg_pct": 0, "neu_pct": 0, "nps": 0, "csat": 0}
         total = len(df)
         
         # Sentiment breakdown
@@ -175,6 +175,22 @@ class SentimentAnalyzer:
             return "Product/Policy"
         return "General"
 
+    def check_relevance(self, text: str, clause: str):
+        text_lower = text.lower()
+        
+        keywords = {
+            "Economics": ['price', 'cost', 'expensive', 'cheap', 'funding', 'tax', 'economics', 'money', 'finance', 'budget', 'debt', 'economy', 'job'],
+            "Healthcare": ['health', 'care', 'medical', 'doctor', 'hospital', 'patient', 'medicine', 'treatment', 'disease', 'outbreak', 'healthcare', 'clinic'],
+            "Environment": ['environment', 'nature', 'green', 'climate', 'pollution', 'warming', 'emission', 'water', 'tree', 'forest', 'sustainability']
+        }
+        
+        clause_theme = clause.split(': ')[-1] if ': ' in clause else clause
+        
+        if clause_theme in keywords:
+            return any(word in text_lower for word in keywords[clause_theme])
+        
+        return True
+
 # Singleton
 analyzer = SentimentAnalyzer()
 
@@ -189,3 +205,6 @@ def calculate_metrics(df):
 
 def get_actionable_category(text: str):
     return analyzer.get_actionable_category(text)
+
+def check_relevance(text: str, clause: str):
+    return analyzer.check_relevance(text, clause)
