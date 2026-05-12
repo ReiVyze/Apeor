@@ -117,22 +117,7 @@
     font-size: 0.8rem !important;
 }
 
-/* ── HEADER SEARCH ── */
-.stTextInput > div > div > input {
-    background: var(--white) !important;
-    border: 1px solid var(--border) !important;
-    border-radius: 10px !important;
-    padding: 0.55rem 1rem !important;
-    font-size: 0.875rem !important;
-    color: var(--text) !important;
-    box-shadow: var(--shadow) !important;
-}
-.stTextInput > div > div > input::placeholder { color: var(--muted) !important; }
-.stTextInput > div > div > input:focus {
-    border-color: #9ca3af !important;
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.06) !important;
-}
-.stTextInput label { display: none !important; }
+
 
 /* ── PAGE TITLE ── */
 .page-title {
@@ -208,6 +193,44 @@
     padding: 7px 14px; border-radius: 8px; font-size: 0.78rem;
     font-weight: 600; color: white; background: var(--text);
     cursor: pointer; white-space: nowrap;
+}
+
+/* ── FUNCTIONAL EXPORT BUTTON ── */
+div.stDownloadButton {
+    text-align: right;
+    margin-top: -18px;
+}
+div.stDownloadButton > button {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    padding: 8px 14px !important;
+    border-radius: 8px !important;
+    font-size: 0.78rem !important;
+    font-weight: 600 !important;
+    color: white !important;
+    background-color: var(--sidebar) !important;
+    border: 1px solid var(--sidebar) !important;
+    cursor: pointer !important;
+    white-space: nowrap !important;
+    width: auto !important;
+    min-height: unset !important;
+    line-height: normal !important;
+    transition: all 0.2s ease !important;
+    box-shadow: var(--shadow) !important;
+}
+
+div.stDownloadButton > button:hover {
+    background-color: #374151 !important;
+    border-color: #374151 !important;
+    color: white !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1) !important;
+}
+
+div.stDownloadButton > button:active {
+    background-color: #000000 !important;
+    transform: translateY(0);
 }
 
 /* Profile avatar */

@@ -97,11 +97,8 @@ if user_role == "👤 Active Citizen":
 else:
     model_type = st.sidebar.selectbox("AI Model:", ["RoBERTa (HF)", "Local DistilBert", "Vader (Lexicon)"])
 
-# --- TOP SEARCH BAR ---
-col_search, col_profile = st.columns([6, 1])
-with col_search:
-    if st.session_state.active_page not in ["Overview", "Feedback Channels"]:
-        st.text_input("", placeholder="🔍 Search", label_visibility="collapsed")
+# --- TOP ROW (PROFILE) ---
+_, col_profile = st.columns([6, 1])
 with col_profile:
     st.markdown('<div class="profile-avatar">👤</div>', unsafe_allow_html=True)
 
@@ -230,144 +227,113 @@ if st.session_state.active_page in ["Sentiment Analysis", "Submit Feedback"]:
                 df = df[df['label'].isin(sel_sent)]
             
             # --- ACTION BAR (EXPORT) ---
-            st.markdown(f'<div class="action-row" style="margin-top: -10px;"><div style="flex:1;"></div><div class="export-chip">⎘ Export {len(df)} Records</div></div>', unsafe_allow_html=True)
+            col_exp_1, col_exp_2 = st.columns([6, 1.2])
+            with col_exp_2:
+                csv_data = df.to_csv(index=False).encode('utf-8')
+                st.download_button(
+                    label=f"⎘ Export {len(df)} Records",
+                    data=csv_data,
+                    file_name=f"sentiment_records_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
+                    mime="text/csv"
+                )
 
             metrics = calculate_metrics(df)
             total = metrics['total']
             
-            # Determine channel counts
-            email_c = int(total * 0.4)
-            chat_c = int(total * 0.3)
-            soc_c = total - email_c - chat_c
-            if 'channel' in df.columns and len(df) > 0:
-                counts = df['channel'].value_counts()
-                email_c = counts.get('Email', 0)
-                chat_c = counts.get('Chat', 0)
-                soc_c = counts.get('Social Media', 0)
-
             # METRICS ROW
             st.markdown(f'''
-            <div class="metrics-strip">
-                <div class="mc" style="flex: 2; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; justify-content: center; margin-bottom: 20px;">
+                <div class="mc" style="width: 700px; display: flex; align-items: center; justify-content: space-between; padding: 20px 40px;">
                     <div>
                         <div class="mc-label">Total Feedback</div>
                         <div class="mc-val">{total}</div>
                     </div>
-                    <div style="border-left: 1px solid #e4e8ef; height: 40px; margin: 0 15px;"></div>
-                    <div style="display: flex; gap: 10px;">
-                        <div style="background: #f0fdf4; padding: 5px 10px; border-radius: 5px; display:flex; align-items:center; gap:8px;"><span style="font-size:0.75rem; color:#6b7280;">Positive</span> <span style="font-size: 1.1rem; font-weight:700; color:#111827;">{metrics['pos_pct']}%</span></div>
-                        <div style="background: #fefce8; padding: 5px 10px; border-radius: 5px; display:flex; align-items:center; gap:8px;"><span style="font-size:0.75rem; color:#6b7280;">Neutral</span> <span style="font-size: 1.1rem; font-weight:700; color:#111827;">{metrics['neu_pct']}%</span></div>
-                        <div style="background: #f8fafc; padding: 5px 10px; border-radius: 5px; display:flex; align-items:center; gap:8px;"><span style="font-size:0.75rem; color:#6b7280;">Negative</span> <span style="font-size: 1.1rem; font-weight:700; color:#111827;">{metrics['neg_pct']}%</span></div>
+                    <div style="border-left: 1px solid #e4e8ef; height: 50px; margin: 0 30px;"></div>
+                    <div style="display: flex; gap: 20px;">
+                        <div style="background: #f0fdf4; padding: 10px 15px; border-radius: 8px; display:flex; align-items:center; gap:12px;"><span style="font-size:0.85rem; color:#6b7280;">Positive</span> <span style="font-size: 1.3rem; font-weight:700; color:#111827;">{metrics['pos_pct']}%</span></div>
+                        <div style="background: #fefce8; padding: 10px 15px; border-radius: 8px; display:flex; align-items:center; gap:12px;"><span style="font-size:0.85rem; color:#6b7280;">Neutral</span> <span style="font-size: 1.3rem; font-weight:700; color:#111827;">{metrics['neu_pct']}%</span></div>
+                        <div style="background: #f8fafc; padding: 10px 15px; border-radius: 8px; display:flex; align-items:center; gap:12px;"><span style="font-size:0.85rem; color:#6b7280;">Negative</span> <span style="font-size: 1.3rem; font-weight:700; color:#111827;">{metrics['neg_pct']}%</span></div>
                     </div>
-                </div>
-                <div class="mc" style="flex: 0.8;">
-                    <div class="mc-label">Email</div>
-                    <div class="mc-val">{email_c}</div>
-                    <div class="mc-icon" style="color:#ef4444;">✉</div>
-                </div>
-                <div class="mc" style="flex: 0.8;">
-                    <div class="mc-label">Chat</div>
-                    <div class="mc-val">{chat_c}</div>
-                    <div class="mc-icon" style="color:#8b5cf6;">💬</div>
-                </div>
-                <div class="mc" style="flex: 0.9;">
-                    <div class="mc-label">Social Media</div>
-                    <div class="mc-val">{soc_c}</div>
-                    <div class="mc-icon" style="color:#3b82f6;">👍</div>
                 </div>
             </div>
             ''', unsafe_allow_html=True)
 
-            # CHARTS ROW 1
-            col_line, col_donut = st.columns([1.1, 1.3])
+            # CHARTS ROW 1 (Centered Line Chart)
+            # REAL DATA TREND
+            if len(df) == 0:
+                days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
+                pos, neu, neg = [0]*7, [0]*7, [0]*7
+            else:
+                df['_idx'] = range(len(df))
+                df['_bin'] = pd.cut(df['_idx'], bins=min(len(df), 7), labels=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][:min(len(df), 7)])
+                
+                pos, neu, neg = [], [], []
+                days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][:min(len(df), 7)]
+                for day in days:
+                    chunk = df[df['_bin'] == day]
+                    total_chunk = len(chunk) or 1
+                    pos.append(round(len(chunk[chunk['label']=='Positive']) / total_chunk * 100, 1))
+                    neu.append(round(len(chunk[chunk['label']=='Neutral']) / total_chunk * 100, 1))
+                    neg.append(round(len(chunk[chunk['label']=='Negative']) / total_chunk * 100, 1))
             
-            with col_line:
-                # REAL DATA TREND
-                if len(df) == 0:
-                    days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat']
-                    pos, neu, neg = [0]*7, [0]*7, [0]*7
-                else:
-                    df['_idx'] = range(len(df))
-                    df['_bin'] = pd.cut(df['_idx'], bins=min(len(df), 7), labels=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][:min(len(df), 7)])
-                    
-                    pos, neu, neg = [], [], []
-                    days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][:min(len(df), 7)]
-                    for day in days:
-                        chunk = df[df['_bin'] == day]
-                        total_chunk = len(chunk) or 1
-                        pos.append(round(len(chunk[chunk['label']=='Positive']) / total_chunk * 100, 1))
-                        neu.append(round(len(chunk[chunk['label']=='Neutral']) / total_chunk * 100, 1))
-                        neg.append(round(len(chunk[chunk['label']=='Negative']) / total_chunk * 100, 1))
-                
-                fig_line = go.Figure()
-                fig_line.add_trace(go.Scatter(x=days, y=pos, mode='lines', line=dict(color='#22c55e', width=2, shape='spline'), name='Positive', hoverinfo='none'))
-                fig_line.add_trace(go.Scatter(x=days, y=neu, mode='lines', line=dict(color='#f59e0b', width=2, shape='spline'), name='Neutral', hoverinfo='none'))
-                fig_line.add_trace(go.Scatter(x=days, y=neg, mode='lines', line=dict(color='#ef4444', width=2, shape='spline'), name='Negative', hoverinfo='none'))
-                
-                # Dynamic Annotation
-                if len(pos) >= 3:
-                    tue_val = pos[2] # Tuesday logic
-                    fig_line.add_trace(go.Scatter(x=[days[2]], y=[tue_val], mode='markers', marker=dict(color='#111827', size=8), hoverinfo='none', showlegend=False))
-                    fig_line.add_annotation(x=days[2], y=tue_val, text=f"<span style='color:#6b7280;font-size:10px;'>Trend Point</span><br><b>{tue_val:.1f}%</b>", showarrow=True, arrowhead=0, arrowcolor='white', bordercolor='#e4e8ef', borderwidth=1, borderpad=4, bgcolor='white', font=dict(color='#111827', size=13), ax=30, ay=-30)
+            # Calculate daily changes for hover tooltips
+            pos_diff = [0] + [round(pos[i] - pos[i-1], 1) for i in range(1, len(pos))]
+            neu_diff = [0] + [round(neu[i] - neu[i-1], 1) for i in range(1, len(neu))]
+            neg_diff = [0] + [round(neg[i] - neg[i-1], 1) for i in range(1, len(neg))]
 
-                fig_line.update_layout(
-                    title=dict(text="<b>Sentiment Trend Overview</b>", font=dict(color='#111827', size=14), y=0.95),
-                    showlegend=True, 
-                    legend=dict(
-                        orientation="h", 
-                        yanchor="bottom", y=1.02, 
-                        xanchor="center", x=0.5, 
-                        font=dict(size=10, color='#6b7280')
-                    ),
-                    margin=dict(l=50, r=60, t=80, b=40), height=320, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-                    xaxis=dict(showgrid=True, gridcolor='#f3f4f6', tickfont=dict(color='#9ca3af')),
-                    yaxis=dict(showgrid=True, gridcolor='#f3f4f6', tickfont=dict(color='#9ca3af'), title="Sentiment Percentage", title_font=dict(color='#9ca3af', size=10))
-                )
-                st.plotly_chart(fig_line, use_container_width=True, config={'displayModeBar': False})
-                
-            with col_donut:
-                fig_donut = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'}, {'type':'domain'}, {'type':'domain'}]])
-                
-                channel_names = ['Email', 'Chat', 'Social Media']
-                if len(df) == 0:
-                    for col_idx, ch in enumerate(channel_names, 1):
-                        fig_donut.add_trace(go.Pie(
-                            labels=['Positive','Neutral','Negative'], values=[0, 0, 0],
-                            name=ch, hole=.75,
-                            marker_colors=['#22c55e','#f59e0b','#ef4444'],
-                            textinfo='none', hoverinfo='none'
-                        ), 1, col_idx)
-                else:
-                    for col_idx, ch in enumerate(channel_names, 1):
-                        sub = df[df['channel'] == ch] if 'channel' in df.columns else df
-                        total_ch = len(sub) or 1
-                        p = round(len(sub[sub['label']=='Positive']) / total_ch * 100, 1)
-                        n = round(len(sub[sub['label']=='Neutral']) / total_ch * 100, 1)
-                        ng = round(len(sub[sub['label']=='Negative']) / total_ch * 100, 1)
-                        fig_donut.add_trace(go.Pie(
-                            labels=['Positive','Neutral','Negative'], values=[p, n, ng],
-                            name=ch, hole=.75,
-                            marker_colors=['#22c55e','#f59e0b','#ef4444'],
-                            textinfo='none', hoverinfo='none'
-                        ), 1, col_idx)
+            fig_line = go.Figure()
+            
+            # Common hover template
+            h_temp = "<b>%{x}</b><br>Sentiment: %{y}%<br>Change: %{customdata:+.1f}%<extra></extra>"
 
-                fig_donut.update_layout(
-                    title=dict(text="<b>Sentiment Distribution by Channel</b>", font=dict(color='#111827', size=14), y=0.95),
-                    showlegend=True, 
-                    legend=dict(
-                        orientation="h", 
-                        yanchor="bottom", y=1.02, 
-                        xanchor="center", x=0.5, 
-                        font=dict(size=10, color='#6b7280')
-                    ),
-                    margin=dict(l=40, r=60, t=80, b=20), height=320, paper_bgcolor='rgba(0,0,0,0)',
-                    annotations=[
-                        dict(text="Email", x=0.14, y=0.5, font_size=11, showarrow=False, font_color='#6b7280'),
-                        dict(text="Chat", x=0.5, y=0.5, font_size=11, showarrow=False, font_color='#6b7280'),
-                        dict(text="Social", x=0.86, y=0.5, font_size=11, showarrow=False, font_color='#6b7280')
-                    ]
-                )
-                st.plotly_chart(fig_donut, use_container_width=True, config={'displayModeBar': False})
+            fig_line.add_trace(go.Scatter(
+                x=days, y=pos, mode='lines+markers', 
+                line=dict(color='#22c55e', width=3, shape='spline'), 
+                name='Positive', customdata=pos_diff, hovertemplate=h_temp
+            ))
+            fig_line.add_trace(go.Scatter(
+                x=days, y=neu, mode='lines+markers', 
+                line=dict(color='#f59e0b', width=3, shape='spline'), 
+                name='Neutral', customdata=neu_diff, hovertemplate=h_temp
+            ))
+            fig_line.add_trace(go.Scatter(
+                x=days, y=neg, mode='lines+markers', 
+                line=dict(color='#ef4444', width=3, shape='spline'), 
+                name='Negative', customdata=neg_diff, hovertemplate=h_temp
+            ))
+            
+            # Dynamic Annotation
+            if len(pos) >= 3:
+                tue_val = pos[2] # Tuesday logic
+                tue_diff = pos_diff[2]
+                fig_line.add_trace(go.Scatter(x=[days[2]], y=[tue_val], mode='markers', marker=dict(color='#111827', size=10), hoverinfo='none', showlegend=False))
+                fig_line.add_annotation(x=days[2], y=tue_val, text=f"<span style='color:#6b7280;font-size:11px;'>Trend Point</span><br><b>{tue_val:.1f}%</b> ({tue_diff:+.1f}%)", showarrow=True, arrowhead=0, arrowcolor='white', bordercolor='#e4e8ef', borderwidth=1, borderpad=6, bgcolor='white', font=dict(color='#111827', size=14), ax=40, ay=-40)
+
+            fig_line.update_layout(
+                title=dict(text="<b>Sentiment Trend Overview (Daily Shift)</b>", font=dict(color='#111827', size=16), y=0.95, x=0.5, xanchor='center'),
+                showlegend=True, 
+                legend=dict(
+                    orientation="h", 
+                    yanchor="bottom", y=1.05, 
+                    xanchor="center", x=0.5, 
+                    font=dict(size=12, color='#6b7280')
+                ),
+                hovermode="x unified",
+                margin=dict(l=80, r=80, t=100, b=60), height=450, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+                xaxis=dict(showgrid=True, gridcolor='#f3f4f6', tickfont=dict(color='#9ca3af', size=12)),
+                yaxis=dict(showgrid=True, gridcolor='#f3f4f6', tickfont=dict(color='#9ca3af', size=12), title="Sentiment Percentage", title_font=dict(color='#9ca3af', size=12)),
+                transition={'duration': 500, 'easing': 'cubic-in-out'},
+                uirevision='true'
+            )
+            
+            # Use columns to center the line chart
+            c_left, c_mid, c_right = st.columns([0.1, 0.8, 0.1])
+            with c_mid:
+                st.plotly_chart(fig_line, use_container_width=True, config={
+                    'displayModeBar': True,
+                    'modeBarButtonsToRemove': ['toImage', 'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian', 'toggleSpikelines'],
+                    'displaylogo': False
+                })
 
             # CHARTS ROW 2
             col_bar, col_horiz = st.columns(2)
@@ -399,9 +365,15 @@ if st.session_state.active_page in ["Sentiment Analysis", "Submit Feedback"]:
                     title=dict(text="<b>Top 3 Feedback Themes/Topics</b>", font=dict(color='#111827', size=14)),
                     margin=dict(l=60, r=100, t=70, b=30), height=310, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
                     xaxis=dict(showgrid=False, showticklabels=False),
-                    yaxis=dict(title="Themes/Topics", title_font=dict(color='#9ca3af', size=12), tickfont=dict(color='#6b7280', size=11))
+                    yaxis=dict(title="Themes/Topics", title_font=dict(color='#9ca3af', size=12), tickfont=dict(color='#6b7280', size=11)),
+                    transition={'duration': 500, 'easing': 'cubic-in-out'},
+                    uirevision='true'
                 )
-                st.plotly_chart(fig_bar, use_container_width=True, config={'displayModeBar': False})
+                st.plotly_chart(fig_bar, use_container_width=True, config={
+                    'displayModeBar': True,
+                    'modeBarButtonsToRemove': ['toImage', 'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian', 'toggleSpikelines'],
+                    'displaylogo': False
+                })
                 
             with col_horiz:
                 word_freq = get_word_freq(df)
@@ -422,9 +394,15 @@ if st.session_state.active_page in ["Sentiment Analysis", "Submit Feedback"]:
                     title=dict(text="<b>Word Frequency by Sentiment</b>", font=dict(color='#111827', size=14)),
                     margin=dict(l=60, r=80, t=70, b=30), height=310, paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
                     xaxis=dict(showgrid=False, showticklabels=False),
-                    yaxis=dict(tickfont=dict(color='#6b7280', size=10))
+                    yaxis=dict(tickfont=dict(color='#6b7280', size=10)),
+                    transition={'duration': 500, 'easing': 'cubic-in-out'},
+                    uirevision='true'
                 )
-                st.plotly_chart(fig_wf, use_container_width=True, config={'displayModeBar': False})
+                st.plotly_chart(fig_wf, use_container_width=True, config={
+                    'displayModeBar': True,
+                    'modeBarButtonsToRemove': ['toImage', 'zoom2d', 'pan2d', 'select2d', 'lasso2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian', 'toggleSpikelines'],
+                    'displaylogo': False
+                })
 elif st.session_state.active_page == "Overview":
     st.markdown('<div class="action-row"><div class="page-title" style="flex:1;">Platform Overview</div></div>', unsafe_allow_html=True)
     st.markdown(load_html("templates/overview.html"), unsafe_allow_html=True)
@@ -463,40 +441,10 @@ elif st.session_state.active_page == "Feedback Channels":
 
     cdf = df_src
     
-    # Calculate Channel-Specific Metrics
-    def get_channel_metrics(c_name):
-        # We map "Direct Portal" to the "Portal/Survey" metric
-        if c_name == "Citizen Portal":
-            sub = cdf[cdf["Channel"] == "Direct Portal"]
-        else:
-            sub = cdf[cdf["Channel"] == c_name]
-            
-        m = calculate_metrics(sub)
-        return m
-    
-    e_m = get_channel_metrics("Email")
-    s_m = get_channel_metrics("Social Media")
-    r_m = get_channel_metrics("Product Review")
-    sv_m = get_channel_metrics("Citizen Portal")
-
     # Render HTML Template
     html_content = load_html("templates/feedback_channels.html")
-    html_content = html_content.replace("{{email_total}}", str(e_m['total']))
-    html_content = html_content.replace("{{email_sentiment}}", str(e_m['pos_pct']))
-    html_content = html_content.replace("{{email_sentiment_cls}}", "positive" if e_m['pos_pct'] > 50 else "negative")
-    
-    html_content = html_content.replace("{{social_total}}", str(s_m['total']))
-    html_content = html_content.replace("{{social_sentiment}}", str(s_m['pos_pct']))
-    html_content = html_content.replace("{{social_sentiment_cls}}", "positive" if s_m['pos_pct'] > 50 else "negative")
-
-    html_content = html_content.replace("{{review_total}}", str(r_m['total']))
-    html_content = html_content.replace("{{csat_score}}", str(r_m['csat']))
-
-    html_content = html_content.replace("{{survey_total}}", str(sv_m['total']))
-    html_content = html_content.replace("{{nps_score}}", str(sv_m['nps']))
-    html_content = html_content.replace("{{nps_cls}}", "positive" if sv_m['nps'] > 0 else "negative")
-
     st.markdown(html_content, unsafe_allow_html=True)
+
     
     st.markdown("<br>", unsafe_allow_html=True)
     
